@@ -1,184 +1,81 @@
 /*Select the names of employees from the location A03 and order them by last name*/
-SELECT
-  fname,
-  lname 
-FROM
-  staff 
-WHERE
-  locationID IN 
-  (
-    SELECT
-      locationID 
-    FROM
-      location 
-    WHERE
-      locationID = 'A03'
-  )
-ORDER BY
-  lname;
+SELECT fname, lname 
+FROM staff 
+WHERE locationID IN 
+  (SELECT locationID 
+    FROM location 
+    WHERE locationID = 'A03')
+ORDER BY lname;
 
 /*Select the items from the menu that are entrees*/
-SELECT
-  ItemName 
-FROM
-  menu 
-WHERE
-  itemtype = 'entree';
+SELECT ItemName 
+FROM menu 
+WHERE itemtype = 'entree';
 
 /*Find the average sales for each location*/
-SELECT
-  AVG(amount) AS 'Average Sales',
-  locationID AS Location 
-FROM
-  sale 
-GROUP BY
-  locationID;
+SELECT AVG(amount) AS 'Average Sales', locationID AS Location 
+FROM sale 
+GROUP BY locationID;
 
 /*List staff members, their positions and what location they work at by who makes the most sales, and what their ticket average is.*/
-Select distinct
-  COUNT(m.saleID) as Sales,
-  s.fname as StaffName,
-  s.position,
-  s.staffID,
-  AVG(m.amount) as ticketavg,
-  l.locationID 
-from
-  sale m,
-  staff s,
-  location l 
-where
-  m.staffID = s.staffID 
+Select distinct COUNT(m.saleID) as Sales, s.fname as StaffName, s.position, s.staffID, AVG(m.amount) as ticketavg, l.locationID 
+from sale m, staff s, location l 
+where m.staffID = s.staffID 
   and s.locationID = l.locationID 
-GROUP BY
-  staffID 
-ORDER BY
-  Sales DESC;
+GROUP BY staffID 
+ORDER BY Sales DESC;
 
 /*What is our menu item with the most sales? What is the profit margin of these items?*/
-select distinct
-  COUNT(m.ItemName) as sales,
-  m.ItemName,
-  m.itemprice,
-  m.itemcost,
-  (
-    m.itemprice - m.itemcost
-  )
-  as profit 
-from
-  menu m,
-  sale s 
-where
-  m.itemID = s.itemID 
-group by
-  m.ItemName 
-order by
-  sales desc;
+select distinct COUNT(m.ItemName) as sales, m.ItemName, m.itemprice, m.itemcost, (m.itemprice - m.itemcost) as profit 
+from menu m, sale s 
+where m.itemID = s.itemID 
+group by m.ItemName 
+order by sales desc;
 
 /*List the staff who have not made a sale*/
-select
-  fname,
-  position 
-from
-  staff s 
-  left outer join
-    sale m 
-    on (m.staffID = s.staffID) 
-where
-  m.itemID is null;
+select fname, position 
+from staff s left outer join sale m on (m.staffID = s.staffID) 
+where m.itemID is null;
 
 /*Menu item without sales?*/
-select
-  ItemName 
-from
-  menu m 
-  left outer join
-    sale s 
-    on (m.itemID = s.itemID) 
-where
-  m.itemID is null;
+select ItemName 
+from menu m  left outer join sale s on (m.itemID = s.itemID) 
+where m.itemID is null;
 
 /*List the total number of sales during lunch hours(open-5:00 pm) and the total profit from those sales. */
-SELECT
-  SUM(s.amount) AS LunchSales,
-  COUNT(s.saleID) AS Sales 
-FROM
-  sale s 
-WHERE
-  s.time <= '17:00';
+SELECT SUM(s.amount) AS LunchSales, COUNT(s.saleID) AS Sales 
+FROM sale s 
+WHERE s.time <= '17:00';
 
 /*List the total number of sales during dinner hours (5:01pm-close) and the total profit from those sales.*/
-SELECT
-  SUM(s.amount) AS DinnerSales,
-  COUNT(s.saleID) AS Sales 
-FROM
-  sale s 
-WHERE
-  s.time >= '17:01';
+SELECT SUM(s.amount) AS DinnerSales, COUNT(s.saleID) AS Sales 
+FROM sale s 
+WHERE s.time >= '17:01';
 
 /*Report the number of sales for each staff member who has at least 3 sales.*/
-SELECT
-  st.staffID,
-  st.fname,
-  st.lname,
-  COUNT(s.saleID) 
-FROM
-  staff st,
-  sale s 
-WHERE
-  st.staffID = s.staffID 
-GROUP BY
-  st.staffID,
-  st.fname,
-  st.lname 
-HAVING
-  COUNT(s.saleID) >= 3;
+SELECT st.staffID, st.fname, st.lname, COUNT(s.saleID) 
+FROM staff st, sale s 
+WHERE st.staffID = s.staffID 
+GROUP BY st.staffID, st.fname, st.lname 
+HAVING COUNT(s.saleID) >= 3;
 
 /*List the top 5 locations with the most sales. Include sale amount, locationID, address, and city.*/
-SELECT
-  SUM(s.amount),
-  l.locationID,
-  l.address,
-  l.city 
-FROM
-  sale s,
-  location l 
-WHERE
-  s.locationID = l.locationID 
-GROUP BY
-  s.amount 
-ORDER BY
-  s.amount DESC LIMIT 5;
+SELECT SUM(s.amount), l.locationID, l.address, l.city 
+FROM sale s, location l 
+WHERE s.locationID = l.locationID 
+GROUP BY s.amount 
+ORDER BY s.amount DESC LIMIT 5;
 
 /*What are the menu items that are available in locations outside of Baton Rouge, LA?*/
-SELECT
-  m.itemID,
-  m.ItemName AS 'Item Name',
-  m.itemprice,
-  m.itemcost,
-  m.itemtype,
-  l.locationID,
-  l.address,
-  l.city 
-FROM
-  location l,
-  menu m,
-  sale s 
-WHERE
-  l.locationID = s.locationID 
-  AND m.itemID = s.itemID 
-  AND l.city NOT IN 
-  (
-    'Baton Rouge'
-  )
-GROUP BY
-  m.itemname ASC;
+SELECT m.itemID, m.ItemName AS 'Item Name', m.itemprice, m.itemcost, m.itemtype, l.locationID, l.address, l.city 
+FROM location l, menu m, sale s 
+WHERE l.locationID = s.locationID  AND m.itemID = s.itemID  
+AND l.city NOT IN ('Baton Rouge')
+GROUP BY m.itemname ASC;
 
 /*What is the average price and average cost of all items?*/
-SELECT
-  AVG(m.itemprice) AS 'Average Price',
-  AVG(m.itemcost) AS 'Average Cost' 
-FROM
-  menu m;
+SELECT AVG(m.itemprice) AS 'Average Price', AVG(m.itemcost) AS 'Average Cost' 
+FROM menu m;
 
 /*number 1*/
 select firstname, lastname, jobtitle
