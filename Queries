@@ -179,3 +179,113 @@ SELECT
   AVG(m.itemcost) AS 'Average Cost' 
 FROM
   menu m;
+
+/*number 1*/
+select firstname, lastname, jobtitle
+from employees
+where jobtitle like '%Sales%'
+order by firstname;
+
+/*number 2*/
+select distinct p.productcode
+from products p, orders o, orderdetails od
+where p.productcode=od.productcode and o.ordernumber=od.ordernumber
+and o.orderdate like '2003-11-11%'
+and status like 'Cancelled';
+
+/*number 3*/
+select (avg(MSRP) - Avg(buyPrice)) as Diff, productname, productline
+from products
+group by productline
+having avg(MSRP) > 90;
+
+/*number 4*/
+select count(distinct (o.ordernumber)) as totalordernumber, c.customername
+from orders o right outer join customers c on o.customernumber=c.customernumber
+group by c.customername
+order by totalordernumber desc, c.customername asc;
+
+/*number 5*/
+select b.empfname, b.empsalary
+from emp b, emp e
+where b.empno=e.bossno
+and e.empfname like 'Clare';
+
+/*number 6*/
+select e.empfname, b.empfname, (e.empsalary-b.empsalary) as salarydiff
+from emp b, emp e
+where b.empno=e.bossno;
+
+/*number 7*/
+select distinct s.sname
+from student s, apply a
+where s.sid=a.sid
+and a.major = 'CS';
+
+/*number 8*/
+select s.sid, s.sname, s.gpa, a.major, c.cname, c.state
+from student s, apply a, college c
+where s.sid=a.sid
+and a.cname=c.cname
+and c.state = 'TX';
+
+/*number 9*/
+select sname, gpa
+from student s
+having GPA > (select avg(GPA) from student);
+
+/*number 10*/
+select s.sid, s.sname, s.gpa, count(a.sid) as numofcol
+from student s, apply a
+where s.sid=a.sid
+group by s.sid;
+
+/*number 11*/
+select c.cname, count(a.decision) as admitted
+from college c, apply a
+where c.cname=a.cname
+and decision = 'Y'
+group by c.cname;
+
+/*number 12*/
+select cname
+from college
+where cname not in (select distinct cname from apply);
+
+/*number 13*/
+select c.cnumber, c.cname, c.pssn, p.dnumber
+from course c, professor p 
+order by c.cname;
+
+/*number 14*/
+select dnumber, count(dnumber) as studentcount
+from student
+group by dnumber
+having studentcount >10;
+
+/*number 15*/
+select s.sname, ta.hours
+from ta_assignment ta,student s
+where s.sssn=ta.sssn
+and ta.hours>20;
+
+/*number 16*/
+select s.sname, sum(ta.hours) as totalhours
+from ta_assignment ta,student s
+where s.sssn=ta.sssn
+group by s.sssn
+having totalhours>20;
+
+/*number 17*/
+select p.pname
+from professor p, department d
+where p.pssn=d.chairssn
+and d.dname='Business';
+
+/*number 18*/
+select p.pssn, p.PNAME
+from professor p, course c, department d
+where p.pssn=c.pssn and d.dnumber=c.dnumber
+and p.dnumber=5
+group by p.pssn
+having count(c.cnumber)>2;
